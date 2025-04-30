@@ -1,11 +1,13 @@
 package gui;
 
-import gui.RegisterForm;
 import dao.TaiKhoanDAO;
 import model.TaiKhoan;
+import util.DatabaseConnection; // Đảm bảo bạn import đúng class DatabaseConnection
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class LoginForm extends JFrame {
     private JTextField txtUsername;
@@ -77,11 +79,17 @@ public class LoginForm extends JFrame {
                 return;
             }
 
+            // Kiểm tra kết nối CSDL
+            if (!checkDatabaseConnection()) {
+                JOptionPane.showMessageDialog(this, "Không thể kết nối tới cơ sở dữ liệu. Vui lòng kiểm tra kết nối.");
+                return;
+            }
+
             TaiKhoanDAO taiKhoanDAO = new TaiKhoanDAO();
             TaiKhoan tk = taiKhoanDAO.dangNhap(tenDangNhap, matKhau);
 
             if (tk != null) {
-                JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Quyền: " + tk.getQuyen());
+                JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
 
                 // Mở MainForm sau khi đăng nhập thành công
                 this.dispose(); // đóng LoginForm
@@ -90,6 +98,19 @@ public class LoginForm extends JFrame {
                 JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu!");
             }
         });
+    }
+
+    // Phương thức kiểm tra kết nối cơ sở dữ liệu
+    private boolean checkDatabaseConnection() {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (conn != null) {
+                return true; // Nếu kết nối thành công
+            } else {
+                return false; // Nếu không thể kết nối
+            }
+        } catch (SQLException e) {
+            return false; // Nếu có lỗi kết nối
+        }
     }
 
     public static void main(String[] args) {

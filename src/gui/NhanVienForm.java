@@ -8,17 +8,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class NhanVienForm extends JInternalFrame {
     private JTextField txtMaNV, txtTenNV, txtMaPhong, txtMaChucVu, txtMaTD, txtMaCM, txtDiaChi, txtNgaySinh,
-            txtGioiTinh, txtDienThoai, txtMobile, txtEmail;
+            txtGioiTinh, txtDienThoai, txtEmail;
     private JTable table;
     private DefaultTableModel model;
     private JButton btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnThoat;
     private boolean isAdding = false;
+    private boolean isBlockingSelection = false;
 
     private NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
@@ -39,7 +38,6 @@ public class NhanVienForm extends JInternalFrame {
         txtNgaySinh = new JTextField();
         txtGioiTinh = new JTextField();
         txtDienThoai = new JTextField();
-        txtMobile = new JTextField();
         txtEmail = new JTextField();
 
         panelTop.add(new JLabel("Mã NV"));
@@ -62,8 +60,6 @@ public class NhanVienForm extends JInternalFrame {
         panelTop.add(txtGioiTinh);
         panelTop.add(new JLabel("Điện thoại"));
         panelTop.add(txtDienThoai);
-        panelTop.add(new JLabel("Mobile"));
-        panelTop.add(txtMobile);
         panelTop.add(new JLabel("Email"));
         panelTop.add(txtEmail);
 
@@ -71,7 +67,7 @@ public class NhanVienForm extends JInternalFrame {
 
         model = new DefaultTableModel();
         model.setColumnIdentifiers(new String[] { "Mã NV", "Tên NV", "Mã phòng", "Mã chức vụ", "Mã trình độ",
-                "Mã chuyên môn", "Địa chỉ", "Ngày sinh", "Giới tính", "Điện thoại", "Mobile", "Email" });
+                "Mã chuyên môn", "Địa chỉ", "Ngày sinh", "Giới tính", "Điện thoại", "Email" });
         table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -94,85 +90,119 @@ public class NhanVienForm extends JInternalFrame {
         getContentPane().add(panelBottom, BorderLayout.SOUTH);
 
         loadData();
-        lockButtons(true);
+        setInitialButtonState();
+        txtMaNV.setEditable(false);
 
-        btnThem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                clearFields();
-                isAdding = true;
-                lockButtons(false);
-            }
+        btnThem.addActionListener(e -> {
+            clearFields();
+            isAdding = true;
+            btnThem.setEnabled(false);
+            btnSua.setEnabled(false);
+            btnXoa.setEnabled(false);
+            btnLuu.setEnabled(true);
+            btnHuy.setEnabled(true);
+            btnThoat.setEnabled(true);
+            txtMaNV.setEditable(true);
         });
 
-        btnHuy.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                clearFields();
+        btnSua.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow < 0) {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn một dòng để sửa!");
+                return;
+            }
+            NhanVien nv = getNhanVienFromFields();
+            if (nhanVienDAO.updateNhanVien(nv)) {
+                JOptionPane.showMessageDialog(null, "Cập nhật thành công!");
+                loadData();
+                showData();
                 isAdding = false;
-                lockButtons(true);
+            } else {
+                JOptionPane.showMessageDialog(null, "Cập nhật thất bại!");
             }
         });
 
-        btnLuu.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (isAdding) {
-                    NhanVien nv = getNhanVienFromFields();
-                    if (nhanVienDAO.insertNhanVien(nv)) {
-                        JOptionPane.showMessageDialog(null, "Thêm mới thành công!");
-                        loadData();
-                        lockButtons(true);
-                        isAdding = false;
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Thêm mới thất bại!");
-                    }
-                }
-            }
-        });
-
-        btnSua.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                NhanVien nv = getNhanVienFromFields();
-                if (nhanVienDAO.updateNhanVien(nv)) {
-                    JOptionPane.showMessageDialog(null, "Cập nhật thành công!");
-                    loadData();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Cập nhật thất bại!");
-                }
-            }
-        });
-
-        btnXoa.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow >= 0) {
-                    String maNV = (String) model.getValueAt(selectedRow, 0);
+        btnXoa.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow >= 0) {
+                String maNV = (String) model.getValueAt(selectedRow, 0);
+                int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa nhân viên này?", "Xác nhận",
+                        JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
                     if (nhanVienDAO.deleteNhanVien(maNV)) {
                         JOptionPane.showMessageDialog(null, "Xóa thành công!");
                         loadData();
+                        clearFields();
+                        setInitialButtonState();
                     } else {
                         JOptionPane.showMessageDialog(null, "Xóa thất bại!");
                     }
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn một dòng để xóa!");
             }
         });
 
-        btnThoat.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        btnLuu.addActionListener(e -> {
+            if (isAdding) {
+                NhanVien nv = getNhanVienFromFields();
+                if (nhanVienDAO.insertNhanVien(nv)) {
+                    JOptionPane.showMessageDialog(null, "Thêm mới thành công!");
+                    loadData();
+                    isAdding = false;
+                    setInitialButtonState();
+                    txtMaNV.setEditable(false);
+                    showData();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Thêm mới thất bại! Có thể Mã NV đã tồn tại.");
+                }
+            }
+        });
+
+        btnHuy.addActionListener(e -> {
+            clearFields();
+            isAdding = false;
+            setInitialButtonState();
+            txtMaNV.setEditable(false);
+        });
+
+        btnThoat.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thoát?", "Xác nhận thoát",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
                 dispose();
             }
         });
 
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    if (isAdding) {
-                        JOptionPane.showMessageDialog(null, "Đang ở chế độ thêm mới, không chọn dữ liệu!");
-                    } else {
-                        showData();
-                        lockButtons(true);
-                    }
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && !isBlockingSelection) {
+                if (isAdding) {
+                    isBlockingSelection = true; // chặn lần gọi thứ hai
+                    JOptionPane.showMessageDialog(null, "Bạn đang ở chế độ Thêm mới!");
+                    table.clearSelection();
+                    isBlockingSelection = false; // mở lại
+                } else {
+                    showData();
+                    btnThem.setEnabled(true);
+                    btnSua.setEnabled(true);
+                    btnXoa.setEnabled(true);
+                    btnLuu.setEnabled(false);
+                    btnHuy.setEnabled(true);
+                    btnThoat.setEnabled(true);
+                    txtMaNV.setEditable(false);
                 }
             }
         });
+
+    }
+
+    private void setInitialButtonState() {
+        btnThem.setEnabled(true);
+        btnSua.setEnabled(false);
+        btnXoa.setEnabled(false);
+        btnLuu.setEnabled(false);
+        btnHuy.setEnabled(true);
+        btnThoat.setEnabled(true);
     }
 
     private void loadData() {
@@ -181,7 +211,7 @@ public class NhanVienForm extends JInternalFrame {
         for (NhanVien nv : list) {
             model.addRow(new Object[] {
                     nv.getMaNV(), nv.getTenNV(), nv.getMaPhong(), nv.getMaChucVu(), nv.getMaTD(), nv.getMaCM(),
-                    nv.getDiaChi(), nv.getNgaySinh(), nv.getGioiTinh(), nv.getDienThoai(), nv.getMobile(), nv.getEmail()
+                    nv.getDiaChi(), nv.getNgaySinh(), nv.getGioiTinh(), nv.getDienThoai(), nv.getEmail()
             });
         }
     }
@@ -197,17 +227,7 @@ public class NhanVienForm extends JInternalFrame {
         txtNgaySinh.setText("");
         txtGioiTinh.setText("");
         txtDienThoai.setText("");
-        txtMobile.setText("");
         txtEmail.setText("");
-    }
-
-    private void lockButtons(boolean normalMode) {
-        btnThem.setEnabled(normalMode);
-        btnSua.setEnabled(normalMode);
-        btnXoa.setEnabled(normalMode);
-        btnThoat.setEnabled(true);
-        btnLuu.setEnabled(!normalMode);
-        btnHuy.setEnabled(true);
     }
 
     private void showData() {
@@ -223,8 +243,7 @@ public class NhanVienForm extends JInternalFrame {
             txtNgaySinh.setText(model.getValueAt(selectedRow, 7).toString());
             txtGioiTinh.setText(model.getValueAt(selectedRow, 8).toString());
             txtDienThoai.setText(model.getValueAt(selectedRow, 9).toString());
-            txtMobile.setText(model.getValueAt(selectedRow, 10).toString());
-            txtEmail.setText(model.getValueAt(selectedRow, 11).toString());
+            txtEmail.setText(model.getValueAt(selectedRow, 10).toString());
         }
     }
 
@@ -232,6 +251,6 @@ public class NhanVienForm extends JInternalFrame {
         return new NhanVien(
                 txtMaNV.getText(), txtTenNV.getText(), txtMaPhong.getText(), txtMaChucVu.getText(),
                 txtMaTD.getText(), txtMaCM.getText(), txtDiaChi.getText(), txtNgaySinh.getText(),
-                txtGioiTinh.getText(), txtDienThoai.getText(), txtMobile.getText(), txtEmail.getText());
+                txtGioiTinh.getText(), txtDienThoai.getText(), txtEmail.getText());
     }
 }

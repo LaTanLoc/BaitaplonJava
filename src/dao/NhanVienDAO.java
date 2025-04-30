@@ -27,7 +27,6 @@ public class NhanVienDAO {
                         rs.getString("NgaySinh"),
                         rs.getString("GioiTinh"),
                         rs.getString("DienThoai"),
-                        rs.getString("Mobile"),
                         rs.getString("Email"));
                 list.add(nv);
             }
@@ -38,7 +37,7 @@ public class NhanVienDAO {
     }
 
     public boolean insertNhanVien(NhanVien nv) {
-        String sql = "INSERT INTO NhanVien (MaNV, TenNV, MaPhong, MaChucVu, MaTD, MaCM, DiaChi, NgaySinh, GioiTinh, DienThoai, Mobile, Email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NhanVien (MaNV, TenNV, MaPhong, MaChucVu, MaTD, MaCM, DiaChi, NgaySinh, GioiTinh, DienThoai, Email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -52,8 +51,7 @@ public class NhanVienDAO {
             ps.setString(8, nv.getNgaySinh());
             ps.setString(9, nv.getGioiTinh());
             ps.setString(10, nv.getDienThoai());
-            ps.setString(11, nv.getMobile());
-            ps.setString(12, nv.getEmail());
+            ps.setString(11, nv.getEmail());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -63,7 +61,7 @@ public class NhanVienDAO {
     }
 
     public boolean updateNhanVien(NhanVien nv) {
-        String sql = "UPDATE NhanVien SET TenNV=?, MaPhong=?, MaChucVu=?, MaTD=?, MaCM=?, DiaChi=?, NgaySinh=?, GioiTinh=?, DienThoai=?, Mobile=?, Email=? WHERE MaNV=?";
+        String sql = "UPDATE NhanVien SET TenNV=?, MaPhong=?, MaChucVu=?, MaTD=?, MaCM=?, DiaChi=?, NgaySinh=?, GioiTinh=?, DienThoai=?, Email=? WHERE MaNV=?";
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -76,9 +74,8 @@ public class NhanVienDAO {
             ps.setString(7, nv.getNgaySinh());
             ps.setString(8, nv.getGioiTinh());
             ps.setString(9, nv.getDienThoai());
-            ps.setString(10, nv.getMobile());
-            ps.setString(11, nv.getEmail());
-            ps.setString(12, nv.getMaNV());
+            ps.setString(10, nv.getEmail());
+            ps.setString(11, nv.getMaNV());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

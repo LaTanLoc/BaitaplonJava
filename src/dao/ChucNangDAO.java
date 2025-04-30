@@ -6,10 +6,10 @@ import model.ChucNang;
 import util.DatabaseConnection;
 
 public class ChucNangDAO {
+    Connection conn = DatabaseConnection.getConnection();
 
     public ArrayList<ChucNang> getAllChucNang() {
         ArrayList<ChucNang> list = new ArrayList<>();
-        Connection conn = DatabaseConnection.getConnection();
         String sql = "SELECT * FROM ChucNang";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -27,7 +27,6 @@ public class ChucNangDAO {
     }
 
     public boolean addChucNang(ChucNang cn) {
-        Connection conn = DatabaseConnection.getConnection();
         String sql = "INSERT INTO ChucNang (Machucnang, Tenchucnang) VALUES (?, ?)";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -41,7 +40,6 @@ public class ChucNangDAO {
     }
 
     public boolean updateChucNang(ChucNang cn) {
-        Connection conn = DatabaseConnection.getConnection();
         String sql = "UPDATE ChucNang SET Tenchucnang = ? WHERE Machucnang = ?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -55,7 +53,6 @@ public class ChucNangDAO {
     }
 
     public boolean deleteChucNang(String machucnang) {
-        Connection conn = DatabaseConnection.getConnection();
         String sql = "DELETE FROM ChucNang WHERE Machucnang = ?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);

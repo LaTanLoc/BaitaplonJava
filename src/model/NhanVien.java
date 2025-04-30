@@ -1,10 +1,10 @@
 package model;
 
 public class NhanVien {
-    private String maNV, tenNV, maPhong, maChucVu, maTD, maCM, diaChi, ngaySinh, gioiTinh, dienThoai, mobile, email;
+    private String maNV, tenNV, maPhong, maChucVu, maTD, maCM, diaChi, ngaySinh, gioiTinh, dienThoai, email;
 
     public NhanVien(String maNV, String tenNV, String maPhong, String maChucVu, String maTD, String maCM,
-            String diaChi, String ngaySinh, String gioiTinh, String dienThoai, String mobile, String email) {
+            String diaChi, String ngaySinh, String gioiTinh, String dienThoai, String email) {
         this.maNV = maNV;
         this.tenNV = tenNV;
         this.maPhong = maPhong;
@@ -15,7 +15,6 @@ public class NhanVien {
         this.ngaySinh = ngaySinh;
         this.gioiTinh = gioiTinh;
         this.dienThoai = dienThoai;
-        this.mobile = mobile;
         this.email = email;
     }
 
@@ -98,14 +97,6 @@ public class NhanVien {
 
     public void setDienThoai(String dienThoai) {
         this.dienThoai = dienThoai;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
     }
 
     public String getEmail() {
