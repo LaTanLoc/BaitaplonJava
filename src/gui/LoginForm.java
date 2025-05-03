@@ -57,6 +57,13 @@ public class LoginForm extends JFrame {
         btnExit.setBounds(130, 220, 130, 30);
         panel.add(btnExit);
 
+        btnExit.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0); // Thoát ứng dụng
+            }
+        });
         add(panel);
 
         setVisible(true);

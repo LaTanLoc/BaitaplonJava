@@ -121,7 +121,13 @@ public class KhachHangForm extends JInternalFrame {
             setButtonState("init");
         });
 
-        btnThoat.addActionListener(e -> dispose());
+        btnThoat.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+            }
+        });
 
         table.getSelectionModel().addListSelectionListener((ListSelectionListener) e -> {
             if (!e.getValueIsAdjusting()) {

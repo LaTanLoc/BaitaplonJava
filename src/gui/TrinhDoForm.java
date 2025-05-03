@@ -115,7 +115,13 @@ public class TrinhDoForm extends JInternalFrame {
             setButtonState("init");
         });
 
-        btnThoat.addActionListener(e -> dispose());
+        btnThoat.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát?", "Xác nhận",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+            }
+        });
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {

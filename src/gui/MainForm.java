@@ -9,7 +9,9 @@ public class MainForm extends JFrame {
 
     public MainForm() {
         setTitle("Quản lý hệ thống");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setExtendedState(JFrame.NORMAL);
+        setSize(1100, 1100);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         desktopPane = new JDesktopPane();
